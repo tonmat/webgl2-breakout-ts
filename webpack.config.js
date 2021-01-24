@@ -1,51 +1,46 @@
 const path = require('path');
 const webpack = require('webpack');
-
-
-
-
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
-
-
-
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
-  entry: './src/index.ts',
+    mode: 'development',
+    entry: './src/index.ts',
 
-  plugins: [new webpack.ProgressPlugin(), new WorkboxWebpackPlugin.GenerateSW({
-          swDest: 'sw.js',
-          clientsClaim: true,
-          skipWaiting: false,
-        })],
+    plugins: [
+        new webpack.ProgressPlugin(),
+        new HtmlWebpackPlugin({
+            meta: {
+                viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no'
+            }
+        })
+    ],
 
-  module: {
-    rules: [{
-      test: /\.(ts|tsx)$/,
-      loader: 'ts-loader',
-      include: [path.resolve(__dirname, 'src')],
-      exclude: [/node_modules/]
-    }, {
-      test: /.css$/,
+    module: {
+        rules: [{
+            test: /\.ts$/,
+            loader: 'ts-loader',
+            include: path.resolve(__dirname, 'src'),
+            exclude: /node_modules/
+        }, {
+            test: /.css$/,
+            use: [{
+                loader: "style-loader"
+            }, {
+                loader: "css-loader",
+                options: {
+                    sourceMap: true
+                }
+            }]
+        }]
+    },
 
-      use: [{
-        loader: "style-loader"
-      }, {
-        loader: "css-loader",
+    resolve: {
+        extensions: ['.ts', '.js']
+    },
 
-        options: {
-          sourceMap: true
-        }
-      }]
-    }]
-  },
-
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js']
-  },
-
-  devServer: {
-    open: true,
-    host: 'localhost'
-  }
+    devServer: {
+        host: 'localhost',
+        hot: true,
+        open: true
+    }
 }
