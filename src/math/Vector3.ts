@@ -1,4 +1,4 @@
-import {clamp} from "./Math";
+import { clamp } from './index';
 
 export default class Vector3 {
     x: number = 0;

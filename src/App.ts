@@ -1,8 +1,8 @@
-import PrimitiveBatch from "./graphics/PrimitiveBatch";
-import Player from "./actors/Player";
-import Ball from "./actors/Ball";
-import {clamp} from "./math/Math";
-import Vector3 from "./math/Vector3";
+import PrimitiveBatch from './graphics/PrimitiveBatch';
+import Player from './actors/Player';
+import Ball from './actors/Ball';
+import { clamp } from './math/index';
+import Vector3 from './math/Vector3';
 
 const TARGET_RATIO = 1280 / 720;
 
