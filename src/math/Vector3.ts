@@ -30,6 +30,15 @@ export default class Vector3 {
         return this;
     }
 
+    sub(x: number | Vector3, y: number = 0, z: number = 0): Vector3 {
+        if (x instanceof Vector3)
+            return this.sub(x.x, x.y, x.z);
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
+        return this;
+    }
+
     dot(x: number | Vector3, y: number = 0, z: number = 0): number {
         if (x instanceof Vector3)
             return this.dot(x.x, x.y, x.z);
