@@ -36,9 +36,9 @@ function createProgram(gl: WebGL2RenderingContext, vertexShader: string, fragmen
 
 export default class Shader {
     private static binded: Shader = null;
-    private readonly gl: WebGL2RenderingContext;
-    private readonly id: WebGLProgram;
-    private readonly uniformLocationMap: { [key: string]: WebGLUniformLocation } = {};
+    private gl: WebGL2RenderingContext;
+    private id: WebGLProgram;
+    private uniformLocationMap: { [key: string]: WebGLUniformLocation } = {};
 
     constructor(gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) {
         this.gl = gl;
@@ -46,7 +46,14 @@ export default class Shader {
     }
 
     dispose() {
+        if (Shader.binded === this)
+            this.unbind();
         this.gl.deleteProgram(this.id);
+        delete this.gl;
+        delete this.id;
+        for (const key in this.uniformLocationMap)
+            delete this.uniformLocationMap[key]
+        delete this.uniformLocationMap;
     }
 
     bind() {

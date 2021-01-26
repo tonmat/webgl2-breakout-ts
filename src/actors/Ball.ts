@@ -3,16 +3,15 @@ import {clamp} from "../math/Math";
 import PrimitiveBatch from "../graphics/PrimitiveBatch";
 
 export default class Ball {
-    readonly size = new Vector3();
-    readonly position = new Vector3();
+    readonly size = new Vector3().set(10, 10);
+    readonly position = new Vector3().set(0, 40);
     readonly velocity = new Vector3().set(200, 400);
     readonly color = new Vector3();
     opacity = 1;
-    private viewport = new Vector3().set(1280, 720);
+    private container = new Vector3().set(1280, 720);
 
-    onWindowResize(width: number, height: number) {
-        this.viewport.set(width, height, 0);
-        this.size.set(10, 10);
+    onContainerResized(container: Vector3) {
+        this.container.set(container);
     }
 
     onUpdate(delta: number) {
@@ -20,15 +19,15 @@ export default class Ball {
 
         if (this.position.x < 0)
             this.velocity.x = Math.abs(this.velocity.x);
-        else if (this.position.x > this.viewport.x - this.size.x)
+        else if (this.position.x > this.container.x - this.size.x)
             this.velocity.x = -Math.abs(this.velocity.x);
         if (this.position.y < 0)
             this.velocity.y = Math.abs(this.velocity.y);
-        else if (this.position.y > this.viewport.y - this.size.y)
+        else if (this.position.y > this.container.y - this.size.y)
             this.velocity.y = -Math.abs(this.velocity.y);
 
-        this.position.x = clamp(this.position.x, 0, this.viewport.x - this.size.x);
-        this.position.y = clamp(this.position.y, 0, this.viewport.y - this.size.y);
+        this.position.x = clamp(this.position.x, 0, this.container.x - this.size.x);
+        this.position.y = clamp(this.position.y, 0, this.container.y - this.size.y);
     }
 
     onRender(batch: PrimitiveBatch) {

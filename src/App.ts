@@ -7,20 +7,27 @@ import Vector3 from "./math/Vector3";
 const TARGET_RATIO = 1280 / 720;
 
 export default class App {
-    private readonly gl: WebGL2RenderingContext;
+    private gl: WebGL2RenderingContext;
     private viewport;
+    private container;
     private batch;
     private player;
     private ball;
     private mouse;
+    private gameOver = false;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
         this.viewport = new Vector3();
-        this.batch = new PrimitiveBatch(gl, 65536);
+        this.container = new Vector3();
+        this.batch = new PrimitiveBatch(gl, 1024);
         this.player = new Player();
         this.ball = new Ball();
         this.mouse = new Vector3();
+    }
+
+    get isGameOver() {
+        return this.gameOver;
     }
 
     onWindowResize(width: number, height: number) {
@@ -34,9 +41,10 @@ export default class App {
             width = 1280;
             height = 1280 / ratio;
         }
+        this.container.set(width, height);
         this.batch.projection.setOrtho(0, width, 0, height, 0, 1);
-        this.player.onWindowResize(width, height);
-        this.ball.onWindowResize(width, height);
+        this.player.onContainerResized(this.container);
+        this.ball.onContainerResized(this.container);
     }
 
     onMouseMove(x: number, y: number) {
@@ -47,6 +55,12 @@ export default class App {
         this.mouse.add(-1, -1);
         this.batch.projection.unproject(this.mouse);
         this.player.onMouseMove(this.mouse.x, this.mouse.y);
+    }
+
+    onBegin() {
+        this.ball.position.x = (this.container.x - this.ball.size.x) / 2
+        this.player.position.x = (this.container.x - this.player.size.x) / 2
+        this.player.targetPosition.set(this.player.position);
     }
 
     onUpdate(delta: number) {
@@ -69,6 +83,9 @@ export default class App {
             this.ball.velocity.normalize(clamp(speed * 1.02, 0, 2000));
         }
 
+        if (this.ball.position.y <= 0)
+            this.gameOver = true;
+
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         this.batch.begin();
@@ -79,5 +96,7 @@ export default class App {
 
     onDispose() {
         this.batch.dispose();
+        delete this.gl;
+        delete this.batch;
     }
 }

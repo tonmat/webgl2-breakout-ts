@@ -3,18 +3,16 @@ import PrimitiveBatch from "../graphics/PrimitiveBatch";
 import {clamp} from "../math/Math";
 
 export default class Player {
-    readonly size = new Vector3();
-    readonly position = new Vector3();
+    readonly size = new Vector3().set(100, 20);
+    readonly position = new Vector3().set(0, 20);
     readonly velocity = new Vector3();
     readonly color = new Vector3();
     opacity = 1;
-    private viewport = new Vector3();
-    private targetPosition = new Vector3();
+    private container = new Vector3();
+    readonly targetPosition = new Vector3().set(0, 20);
 
-    onWindowResize(width: number, height: number) {
-        this.viewport.set(width, height, 0);
-        this.size.set(100, 20);
-        this.targetPosition.y = 20;
+    onContainerResized(container: Vector3) {
+        this.container.set(container);
     }
 
     onMouseMove(x: number, y: number) {
@@ -24,7 +22,7 @@ export default class Player {
     onUpdate(delta: number) {
         this.velocity.set(this.position).scalar(-1);
         this.position.lerp(10 * delta, this.targetPosition);
-        this.position.x = clamp(this.position.x, 0, this.viewport.x - this.size.x);
+        this.position.x = clamp(this.position.x, 0, this.container.x - this.size.x);
         this.velocity.add(this.position).scalar(1 / delta);
     }
 

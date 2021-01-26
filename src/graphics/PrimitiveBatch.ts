@@ -7,13 +7,12 @@ import primitiveFS from '../assets/shader/primitive-fs.glsl';
 import {Matrix4} from "../math/Matrix4";
 
 export default class PrimitiveBatch {
-    private readonly gl: WebGL2RenderingContext;
+    private gl: WebGL2RenderingContext;
     private indices: Uint32Array;
     private indices_pos: number;
     private vertices: Float32Array;
     private vertices_pos: number;
     private vertex_count: number;
-    private _projection: Matrix4;
     private vao: VertexArray;
     private ibo: IndexBuffer;
     private vbo: VertexBuffer;
@@ -35,15 +34,27 @@ export default class PrimitiveBatch {
         this.shader = new Shader(gl, primitiveVS, primitiveFS);
     }
 
+    private _projection: Matrix4;
+
+    get projection() {
+        return this._projection;
+    }
+
     dispose() {
         this.vao.dispose();
         this.ibo.dispose();
         this.vbo.dispose();
         this.shader.dispose();
-    }
-
-    get projection() {
-        return this._projection;
+        delete this.gl;
+        delete this.indices;
+        delete this.indices_pos;
+        delete this.vertices;
+        delete this.vertices_pos;
+        delete this.vertex_count;
+        delete this.vao;
+        delete this.ibo;
+        delete this.vbo;
+        delete this.shader;
     }
 
     begin() {
@@ -65,6 +76,19 @@ export default class PrimitiveBatch {
         this.vao.unbind();
     }
 
+    drawRect(x: number, y: number, w: number, h: number, r: number, g: number, b: number, a: number) {
+        this.putIndex(this.vertex_count);
+        this.putIndex(this.vertex_count + 1);
+        this.putIndex(this.vertex_count + 2);
+        this.putIndex(this.vertex_count + 2);
+        this.putIndex(this.vertex_count + 3);
+        this.putIndex(this.vertex_count);
+        this.putVertex(x, y, r, g, b, a);
+        this.putVertex(x + w, y, r, g, b, a);
+        this.putVertex(x + w, y + h, r, g, b, a);
+        this.putVertex(x, y + h, r, g, b, a);
+    }
+
     private putIndex(i: number) {
         this.indices[this.indices_pos++] = i;
     }
@@ -77,18 +101,5 @@ export default class PrimitiveBatch {
         this.vertices[this.vertices_pos++] = b;
         this.vertices[this.vertices_pos++] = a;
         this.vertex_count++;
-    }
-
-    drawRect(x: number, y: number, w: number, h: number, r: number, g: number, b: number, a: number) {
-        this.putIndex(this.vertex_count);
-        this.putIndex(this.vertex_count + 1);
-        this.putIndex(this.vertex_count + 2);
-        this.putIndex(this.vertex_count + 2);
-        this.putIndex(this.vertex_count + 3);
-        this.putIndex(this.vertex_count);
-        this.putVertex(x, y, r, g, b, a);
-        this.putVertex(x + w, y, r, g, b, a);
-        this.putVertex(x + w, y + h, r, g, b, a);
-        this.putVertex(x, y + h, r, g, b, a);
     }
 }
