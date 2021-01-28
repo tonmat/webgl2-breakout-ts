@@ -1,8 +1,9 @@
 import PrimitiveBatch from './graphics/PrimitiveBatch';
 import Player from './actors/Player';
 import Ball from './actors/Ball';
-import { clamp } from './math/index';
+import {clamp} from './math/index';
 import Vector3 from './math/Vector3';
+import Actor from "./actors/Actor";
 
 const TARGET_RATIO = 1280 / 720;
 
@@ -11,10 +12,13 @@ export default class App {
     private viewport;
     private container;
     private batch;
+    private actors;
     private player;
     private ball;
     private mouse;
     private gameOver = false;
+    private gameOverPre = false;
+    private time = 0;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
@@ -23,7 +27,12 @@ export default class App {
         this.batch = new PrimitiveBatch(gl, 1024);
         this.player = new Player();
         this.ball = new Ball();
+        this.actors = Array<Actor>();
+        this.actors.push(this.player);
+        this.actors.push(this.ball);
         this.mouse = new Vector3();
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     get isGameOver() {
@@ -64,33 +73,36 @@ export default class App {
     }
 
     onUpdate(delta: number) {
-        this.player.onUpdate(delta);
-        this.ball.onUpdate(delta);
+        if (this.gameOverPre) {
+            this.time += delta;
+            this.player.opacity = clamp(1 - this.time, 0, 1);
+            if (this.time >= 1)
+                this.gameOver = true;
+        } else {
+            this.time += delta;
+            for (const actor of this.actors)
+                actor.onUpdate(delta);
 
-        if (
-            this.ball.position.x < this.player.position.x + this.player.size.x &&
-            this.ball.position.x + this.ball.size.x > this.player.position.x &&
-            this.ball.position.y < this.player.position.y + this.player.size.y &&
-            this.ball.position.y + this.ball.size.y > this.player.position.y) {
+            if (this.ball.moveAndCollide(delta, [this.player])) {
+                let dx = (this.ball.position.x + 0.5 * this.ball.size.x) - (this.player.position.x + 0.5 * this.player.size.x)
+                dx = dx / this.player.size.x;
+                this.ball.velocity.y = Math.sign(this.ball.velocity.y);
+                this.ball.velocity.x = 2 * dx;
+                this.ball.velocity.normalize(clamp(this.time * 4, 400, 2000));
+            }
 
-            this.ball.position.y = this.player.position.y + this.player.size.y;
-
-            let dx = (this.ball.position.x + 0.5 * this.ball.size.x) - (this.player.position.x + 0.5 * this.player.size.x)
-            dx = dx / this.player.size.x;
-            const speed = this.ball.velocity.length();
-            this.ball.velocity.y = 1;
-            this.ball.velocity.x = 2 * dx;
-            this.ball.velocity.normalize(clamp(speed * 1.02, 0, 2000));
+            if (this.ball.position.y <= 0) {
+                this.actors.splice(this.actors.indexOf(this.ball), 1)
+                this.gameOverPre = true;
+                this.time = 0;
+            }
         }
-
-        if (this.ball.position.y <= 0)
-            this.gameOver = true;
 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         this.batch.begin();
-        this.player.onRender(this.batch);
-        this.ball.onRender(this.batch);
+        for (const actor of this.actors)
+            actor.onRender(this.batch);
         this.batch.end();
     }
 

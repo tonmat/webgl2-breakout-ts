@@ -2,6 +2,7 @@
   "version": "1.0.0",
   "description": "Breakout TS",
   "name": "breakout-ts",
+  "private": "true",
   "scripts": {
     "build": "webpack",
     "start": "webpack serve"

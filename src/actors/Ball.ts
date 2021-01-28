@@ -17,8 +17,6 @@ export default class Ball extends Actor {
   }
 
   onUpdate(delta: number) {
-    this.position.fma(delta, this.velocity);
-
     if (this.position.x < 0)
       this.velocity.x = Math.abs(this.velocity.x);
     else if (this.position.x > this.container.x - this.size.x)
