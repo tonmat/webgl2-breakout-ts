@@ -23,8 +23,6 @@ export default class Actor {
         const collision = this.getNearestCollision(delta, colliders);
         this.position.fma(delta, this.velocity);
         if (collision) {
-            const {time, position, normal, penetration} = collision;
-            console.log({time, position: position.x, normal: normal.x, penetration: penetration.x});
             const reflection = 1 + this.bounce;
             this.position.add(
                 -Math.abs(collision.normal.x) * reflection * collision.penetration.x,
@@ -55,6 +53,38 @@ export default class Actor {
 
         const dx = (this.velocity.x - collider.velocity.x) * delta;
         const dy = (this.velocity.y - collider.velocity.y) * delta;
+
+        // broad phase
+
+        {
+            let left = this.position.x
+            let right = this.position.x + dx;
+            if (left > right) {
+                const leftTemp = left;
+                left = right;
+                right = leftTemp;
+            }
+            right += this.size.x;
+
+            let bottom = this.position.y;
+            let top = this.position.y + dy;
+            if (bottom > top) {
+                const bottomTemp = bottom;
+                bottom = top;
+                top = bottomTemp;
+            }
+            top += this.size.y;
+
+            if (
+                (left >= collider.position.x + collider.size.x) ||
+                (right <= collider.position.x) ||
+                (bottom >= collider.position.y + collider.size.y) ||
+                (top <= collider.position.y))
+                return null;
+        }
+
+        // narrow phase
+
         const scaleX = 1 / dx;
         const scaleY = 1 / dy;
 

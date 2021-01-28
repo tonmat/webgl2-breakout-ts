@@ -82,7 +82,6 @@ export default class App {
                 this.actors.push(brick);
             }
         }
-        console.log(this.actors);
     }
 
     onUpdate(delta: number) {
