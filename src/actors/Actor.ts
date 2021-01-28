@@ -50,6 +50,9 @@ export default class Actor {
     }
 
     private checkCollision(delta: number, collider: Actor): Collision {
+        if (this === collider)
+            return null;
+
         const dx = (this.velocity.x - collider.velocity.x) * delta;
         const dy = (this.velocity.y - collider.velocity.y) * delta;
         const scaleX = 1 / dx;
@@ -98,6 +101,7 @@ export default class Actor {
             };
 
             return {
+                collider,
                 time: t,
                 position,
                 normal,
@@ -109,6 +113,7 @@ export default class Actor {
 }
 
 interface Collision {
+    collider: Actor;
     time: number;
     position: { x: number, y: number };
     normal: { x: number, y: number };

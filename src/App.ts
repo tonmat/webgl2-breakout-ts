@@ -4,13 +4,15 @@ import Ball from './actors/Ball';
 import {clamp} from './math/index';
 import Vector3 from './math/Vector3';
 import Actor from "./actors/Actor";
+import Brick from "./actors/Brick";
+import Container from "./actors/Container";
 
 const TARGET_RATIO = 1280 / 720;
 
 export default class App {
     private gl: WebGL2RenderingContext;
     private viewport;
-    private container;
+    private container: Container;
     private batch;
     private actors;
     private player;
@@ -23,7 +25,6 @@ export default class App {
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
         this.viewport = new Vector3();
-        this.container = new Vector3();
         this.batch = new PrimitiveBatch(gl, 1024);
         this.player = new Player();
         this.ball = new Ball();
@@ -50,8 +51,9 @@ export default class App {
             width = 1280;
             height = 1280 / ratio;
         }
-        this.container.set(width, height);
-        this.batch.projection.setOrtho(0, width, 0, height, 0, 1);
+        const hw = 0.5 * width;
+        this.container = {left: -hw, bottom: 0, right: hw, top: height};
+        this.batch.projection.setOrtho(-hw, hw, 0, height, 0, 1);
         this.player.onContainerResized(this.container);
         this.ball.onContainerResized(this.container);
     }
@@ -67,15 +69,28 @@ export default class App {
     }
 
     onBegin() {
-        this.ball.position.x = (this.container.x - this.ball.size.x) / 2
-        this.player.position.x = (this.container.x - this.player.size.x) / 2
         this.player.targetPosition.set(this.player.position);
+        const cx = this.container.right - this.container.left;
+        const cy = this.container.top - this.container.bottom;
+        const bx = Math.floor(cx / 80) - 1;
+        const by = Math.floor(cy / 20) - 2;
+        for (let i = 20; i < by; i++) {
+            for (let j = -bx; j < bx; j++) {
+                const brick = new Brick()
+                brick.position.y = i * brick.size.y;
+                brick.position.x = j * brick.size.x;
+                this.actors.push(brick);
+            }
+        }
+        console.log(this.actors);
     }
 
     onUpdate(delta: number) {
         if (this.gameOverPre) {
             this.time += delta;
-            this.player.opacity = clamp(1 - this.time, 0, 1);
+            const opacity = clamp(1 - this.time, 0, 1);
+            for (const actor of this.actors)
+                actor.opacity = opacity;
             if (this.time >= 1)
                 this.gameOver = true;
         } else {
@@ -83,12 +98,17 @@ export default class App {
             for (const actor of this.actors)
                 actor.onUpdate(delta);
 
-            if (this.ball.moveAndCollide(delta, [this.player])) {
-                let dx = (this.ball.position.x + 0.5 * this.ball.size.x) - (this.player.position.x + 0.5 * this.player.size.x)
-                dx = dx / this.player.size.x;
-                this.ball.velocity.y = Math.sign(this.ball.velocity.y);
-                this.ball.velocity.x = 2 * dx;
-                this.ball.velocity.normalize(clamp(this.time * 4, 400, 2000));
+            const collision = this.ball.moveAndCollide(delta, this.actors)
+            if (collision) {
+                if (collision.collider === this.player) {
+                    let dx = (this.ball.position.x + 0.5 * this.ball.size.x) - (this.player.position.x + 0.5 * this.player.size.x)
+                    dx = dx / this.player.size.x;
+                    this.ball.velocity.y = Math.sign(this.ball.velocity.y);
+                    this.ball.velocity.x = 2 * dx;
+                    this.ball.velocity.normalize(clamp(this.time * 4, 400, 2000));
+                } else {
+                    this.actors.splice(this.actors.indexOf(collision.collider), 1);
+                }
             }
 
             if (this.ball.position.y <= 0) {
