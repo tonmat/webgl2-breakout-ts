@@ -89,6 +89,83 @@ export default class PrimitiveBatch {
         this.putVertex(x, y + h, r, g, b, a);
     }
 
+    drawDigit(d: number, x: number, y: number, s: number, r: number, g: number, b: number, a: number) {
+        console.log(d);
+        switch (d) {
+            case 0:
+                this.drawRect(x, y, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s, s, s * 3, r, g, b, a);
+                this.drawRect(x + s * 2, y + s, s, s * 3, r, g, b, a);
+                break;
+            case 1:
+                this.drawRect(x + s * 2, y, s, s * 5, r, g, b, a);
+                break;
+            case 2:
+                this.drawRect(x, y, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 2, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s, s, s, r, g, b, a);
+                this.drawRect(x + s * 2, y + s * 3, s, s, r, g, b, a);
+                break;
+            case 3:
+                this.drawRect(x, y, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 2, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x + s * 2, y + s, s, s, r, g, b, a);
+                this.drawRect(x + s * 2, y + s * 3, s, s, r, g, b, a);
+                break;
+            case 4:
+                this.drawRect(x + s, y + s * 2, s, s, r, g, b, a);
+                this.drawRect(x, y + s * 2, s, s * 3, r, g, b, a);
+                this.drawRect(x + s * 2, y, s, s * 5, r, g, b, a);
+                break;
+            case 5:
+                this.drawRect(x, y, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 2, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x + s * 2, y + s, s, s, r, g, b, a);
+                this.drawRect(x, y + s * 3, s, s, r, g, b, a);
+                break;
+            case 6:
+                this.drawRect(x + s, y, s * 2, s, r, g, b, a);
+                this.drawRect(x + s, y + s * 2, s * 2, s, r, g, b, a);
+                this.drawRect(x + s, y + s * 4, s * 2, s, r, g, b, a);
+                this.drawRect(x + s * 2, y + s, s, s, r, g, b, a);
+                this.drawRect(x, y, s, s * 5, r, g, b, a);
+                break;
+            case 7:
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x + s * 2, y, s, s * 4, r, g, b, a);
+                break;
+            case 8:
+                this.drawRect(x, y, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 3, s, r, g, b, a);
+                this.drawRect(x, y + s, s, s * 3, r, g, b, a);
+                this.drawRect(x + s * 2, y + s, s, s * 3, r, g, b, a);
+                this.drawRect(x + s, y + s * 2, s, s, r, g, b, a);
+                break;
+            case 9:
+                this.drawRect(x, y, s * 2, s, r, g, b, a);
+                this.drawRect(x, y + s * 2, s * 2, s, r, g, b, a);
+                this.drawRect(x, y + s * 4, s * 2, s, r, g, b, a);
+                this.drawRect(x + s * 2, y, s, s * 5, r, g, b, a);
+                this.drawRect(x, y + s * 3, s, s, r, g, b, a);
+                break;
+        }
+    }
+
+    drawNumber(d: number, x: number, y: number, s: number, r: number, g: number, b: number, a: number) {
+        let offsetX = -s * 3;
+        while (true) {
+            this.drawDigit(d % 10, offsetX + x, y, s, r, g, b, a);
+            if (d < 10)
+                break;
+            d = Math.floor(d * 0.1);
+            offsetX -= s * 4;
+        }
+    }
+
     private putIndex(i: number) {
         this.indices[this.indices_pos++] = i;
     }

@@ -21,6 +21,7 @@ export default class App {
     private gameOver = false;
     private gameOverPre = false;
     private time = 0;
+    private score = 0;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
@@ -107,6 +108,7 @@ export default class App {
                     this.ball.velocity.normalize(clamp(this.time * 4, 400, 2000));
                 } else {
                     this.actors.splice(this.actors.indexOf(collision.collider), 1);
+                    this.score += 1;
                 }
             }
 
@@ -122,6 +124,8 @@ export default class App {
         this.batch.begin();
         for (const actor of this.actors)
             actor.onRender(this.batch);
+        const sin = 0.4 + 0.2 * Math.sin(4 * this.time);
+        this.batch.drawNumber(this.score, this.container.right - 4, 4, 4, sin, sin, 0.4, this.player.opacity);
         this.batch.end();
     }
 
