@@ -1,10 +1,10 @@
-import VertexArray from "./VertexArray";
-import IndexBuffer from "./IndexBuffer";
-import VertexBuffer from "./VertexBuffer";
-import Shader from "./Shader";
+import VertexArray from './VertexArray';
+import IndexBuffer from './IndexBuffer';
+import VertexBuffer from './VertexBuffer';
+import Shader from './Shader';
 import primitiveVS from '../assets/shader/primitive-vs.glsl';
 import primitiveFS from '../assets/shader/primitive-fs.glsl';
-import {Matrix4} from "../math/Matrix4";
+import { Matrix4 } from '../math/Matrix4';
 
 export default class PrimitiveBatch {
     private gl: WebGL2RenderingContext;
@@ -90,7 +90,6 @@ export default class PrimitiveBatch {
     }
 
     drawDigit(d: number, x: number, y: number, s: number, r: number, g: number, b: number, a: number) {
-        console.log(d);
         switch (d) {
             case 0:
                 this.drawRect(x, y, s * 3, s, r, g, b, a);
